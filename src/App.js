@@ -12,6 +12,7 @@ function App() {
         <a
           className="App-link"
           href="https://www.virtualbabysittersclub.com/daily-calendar-availabilty/"
+          target="_top"
         >
           Return to Daily Calendar Availability
         </a>
