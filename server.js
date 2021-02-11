@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "build")));
 
-app.get(["/appointment-select","/appointment-select/index.html.var"], function (req, res) {
+app.get(["/","/index.html.var"], function (req, res) {
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
