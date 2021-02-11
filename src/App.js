@@ -7,15 +7,13 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          New Appointment Selection UI Coming Soon!
         </p>
         <a
           className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="https://www.virtualbabysittersclub.com/daily-calendar-availabilty/"
         >
-          Learn React
+          Return to Daily Calendar Availability
         </a>
       </header>
     </div>
