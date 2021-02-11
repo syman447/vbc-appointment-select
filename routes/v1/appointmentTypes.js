@@ -2,8 +2,8 @@ var express = require("express");
 var axios = require("axios").default;
 var router = express.Router();
 
-var constants = require("../constants");
-var asyncFilter = require("../util").asyncFilter;
+var constants = require("../../constants");
+var asyncFilter = require("../../util").asyncFilter;
 
 /* GET appointmentTypes listing. */
 router.get("/", async (req, res, next) => {

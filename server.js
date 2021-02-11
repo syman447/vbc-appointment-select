@@ -6,9 +6,9 @@ var cookieParser = require("cookie-parser");
 var axios = require("axios").default;
 var logger = require("morgan");
 
-var calendarsRouter = require("./routes/calendars");
-var categoriesRouter = require("./routes/categories");
-var appointmentTypesRouter = require("./routes/appointmentTypes");
+var calendarsRouter = require("./routes/v1/calendars");
+var categoriesRouter = require("./routes/v1/categories");
+var appointmentTypesRouter = require("./routes/v1/appointmentTypes");
 
 axios.defaults.baseURL = process.env.ACUITY_BASE_URL;
 axios.defaults.auth = {
@@ -32,9 +32,9 @@ app.get("/ping", function (req, res) {
     return res.send("pong");
 });
 
-app.use("/api/calendars", calendarsRouter);
-app.use("/api/categories", categoriesRouter);
-app.use("/api/appointment-types", appointmentTypesRouter);
+app.use("/api/v1/calendars", calendarsRouter);
+app.use("/api/v1/categories", categoriesRouter);
+app.use("/api/v1/appointment-types", appointmentTypesRouter);
 
 app.listen(process.env.NODE_PORT || 8080);
 
