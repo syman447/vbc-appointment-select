@@ -37,6 +37,8 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    console.log("hello");
+
     axios.get("http://localhost:3000/api/v2/calendars").then(response => this.setState({
       performerOptions: response.data.map(option => ({
         key: option.id,
