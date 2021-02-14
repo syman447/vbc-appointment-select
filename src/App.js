@@ -32,6 +32,8 @@ class App extends React.Component {
       performerOptions: [],
       appointmentOptions: [],
     }
+
+    console.log("hi");
   }
 
   componentDidMount() {
