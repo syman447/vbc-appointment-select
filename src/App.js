@@ -162,7 +162,7 @@ class App extends React.Component {
               selection
               options={momentTimeZone.tz.names().map(option => ({
                 key: option,
-                text: `${moment().tz(option).format("(zZ)")} ${option}`,
+                text: `(GMT${moment().tz(option).format("Z")}) ${option}`,
                 value: option,
               }))}
               onChange={(event, data) => this.setState({ timezone: data.value })}
