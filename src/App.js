@@ -1,6 +1,9 @@
 import React from "react";
 import axios from "axios";
 import { Dropdown, Form } from "semantic-ui-react";
+import DatePicker from "react-datepicker";
+import momentTimeZone from 'moment-timezone';
+import moment from "moment";
 
 class App extends React.Component {
   constructor(props) {
@@ -9,6 +12,8 @@ class App extends React.Component {
     this.state = {
       ageGroup: null,
       sessionTypes: [],
+      month: new Date(),
+      timezone: momentTimeZone.tz.guess(),
       daysOfWeek: [],
       timesOfDay: [],
       performers: [],
@@ -33,7 +38,7 @@ class App extends React.Component {
       appointmentOptions: [],
     }
 
-    console.log("hi");
+    console.log(new Date().getTimezoneOffset());
   }
 
   componentDidMount() {
@@ -87,6 +92,29 @@ class App extends React.Component {
             />
           </Form.Field>
           <Form.Field>
+            <label>Performer</label>
+            <Dropdown
+              placeholder="All Performers"
+              selection
+              multiple
+              options={this.state.performerOptions}
+              onChange={(event, data) => this.setState({ performers: data.value })}
+              value={this.state.performers}
+            />
+          </Form.Field>
+        </Form.Group>
+        <Form.Group widths="equal">
+          <Form.Field className="customDatePickerWidth">
+            <label>Month</label>
+            <DatePicker
+              selected={this.state.month}
+              onChange={date => this.setState({ month: date })}
+              dateFormat="MMMM yyyy"
+              showMonthYearPicker
+              popperPlacement="bottom-center"
+            />
+          </Form.Field>
+          <Form.Field>
             <label>Day of Week</label>
             <Dropdown
               placeholder="All Days"
@@ -129,14 +157,16 @@ class App extends React.Component {
             />
           </Form.Field>
           <Form.Field>
-            <label>Performer</label>
+            <label>Time Zone</label>
             <Dropdown
-              placeholder="All Performers"
               selection
-              multiple
-              options={this.state.performerOptions}
-              onChange={(event, data) => this.setState({ performers: data.value })}
-              value={this.state.performers}
+              options={momentTimeZone.tz.names().map(option => ({
+                key: option,
+                text: `${moment().tz(option).format("(zZ)")} ${option}`,
+                value: option,
+              }))}
+              onChange={(event, data) => this.setState({ timezone: data.value })}
+              value={this.state.timezone}
             />
           </Form.Field>
         </Form.Group>
