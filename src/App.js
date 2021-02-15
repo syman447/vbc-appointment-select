@@ -37,13 +37,24 @@ class App extends React.Component {
       performerOptions: [],
       appointmentOptions: [],
     }
-
-    console.log(new Date().getTimezoneOffset());
   }
 
   componentDidMount() {
-    console.log("hello");
+    this.getPerformerOptions();
+  }
 
+  componentDidUpdate(prevProps, prevState) {
+    const { timezone, month } = this.state;
+
+    const monthMoment = moment(month);
+    const previousMonthMoment = moment(prevState.month);
+
+    if (timezone !== prevState.timezone || monthMoment.isSame(previousMonthMoment)) {
+      this.getAppointmentOptions();
+    }
+  }
+
+  getPerformerOptions = () => {
     axios.get("https://www.virtualbabysittersclub.com/api/v2/calendars").then(response => this.setState({
       performerOptions: response.data.map(option => ({
         key: option.id,
@@ -51,6 +62,16 @@ class App extends React.Component {
         value: option.id,
       })),
     }));
+  }
+
+  getAppointmentOptions = () => {
+    const { timezone, month } = this.state;
+
+    const monthMoment = moment(month);
+    axios.get(`https://www.virtualbabysittersclub.com/api/v2/classes?month=${monthMoment.format("YYYY-MM")}&timezone=${timezone}`)
+      .then(response => this.setState({
+        appointmentOptions: response.data,
+      }));
   }
 
   render() {
@@ -63,6 +84,8 @@ class App extends React.Component {
               placeholder="All Ages"
               selection
               clearable
+              selectOnBlur={false}
+              selectOnNavigation={false}
               options={[
                 {
                   key: "3-6",

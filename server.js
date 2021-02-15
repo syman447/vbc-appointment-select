@@ -11,6 +11,7 @@ var categoriesRouterV1 = require("./routes/v1/categories");
 var appointmentTypesRouterV1 = require("./routes/v1/appointmentTypes");
 
 var calendarsRouter = require("./routes/v2/calendars");
+var classesRouter = require("./routes/v2/classes");
 
 axios.defaults.baseURL = process.env.ACUITY_BASE_URL;
 axios.defaults.auth = {
@@ -59,6 +60,7 @@ app.use("/api/v1/categories", categoriesRouterV1);
 app.use("/api/v1/appointment-types", appointmentTypesRouterV1);
 
 app.use("/api/v2/calendars", calendarsRouter);
+app.use("/api/v2/classes", classesRouter);
 
 app.listen(process.env.NODE_PORT || 8080);
 
