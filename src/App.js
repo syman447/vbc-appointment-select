@@ -41,6 +41,7 @@ class App extends React.Component {
 
   componentDidMount() {
     this.getPerformerOptions();
+    this.getAppointmentOptions();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -49,7 +50,7 @@ class App extends React.Component {
     const monthMoment = moment(month);
     const previousMonthMoment = moment(prevState.month);
 
-    if (timezone !== prevState.timezone || monthMoment.isSame(previousMonthMoment)) {
+    if (timezone !== prevState.timezone || !monthMoment.isSame(previousMonthMoment)) {
       this.getAppointmentOptions();
     }
   }
