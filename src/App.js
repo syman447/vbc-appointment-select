@@ -11,6 +11,8 @@ const getSessionTypeFromCategory = (category) => category.split("(")[0].trim();
 
 const getAgeGroupFromCategory = (category) => category.match(/\(([^)]+)\)/).pop();
 
+var isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0));
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -181,6 +183,7 @@ class App extends React.Component {
                 dateFormat="MMMM yyyy"
                 showMonthYearPicker
                 popperPlacement="bottom-center"
+                withPortal={isTouch}
               />
             </Form.Field>
             <Form.Field>
