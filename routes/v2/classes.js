@@ -4,10 +4,10 @@ var router = express.Router();
 
 /* GET classes listing. */
 router.get("/", async (req, res, next) => {
-  const { month, timezone } = req.query;
+  const { month } = req.query;
 
   const appointmentTypesPromise = axios.get("/appointment-types");
-  const classesPromise = axios.get(`/availability/classes?month=${month}&timezone=${timezone}`);
+  const classesPromise = axios.get(`/availability/classes?month=${month}`);
 
   const appointmentTypesMap = (await appointmentTypesPromise).data.reduce((acc, curr) => {
     acc[curr.id] = curr;

@@ -1,17 +1,22 @@
 import React from "react";
 import axios from "axios";
-import { Card, Dropdown, Form, Header, Button, Image } from "semantic-ui-react";
+import { Card, Dropdown, Form, Header, Button, Image, Dimmer, Loader } from "semantic-ui-react";
 import DatePicker from "react-datepicker";
 import momentTimeZone from 'moment-timezone';
 import moment from "moment";
 import _ from "lodash";
 import Iframe from 'react-iframe'
 
+const getSessionTypeFromCategory = (category) => category.split("(")[0].trim();
+
+const getAgeGroupFromCategory = (category) => category.match(/\(([^)]+)\)/).pop();
+
 class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      loading: false,
       ageGroup: null,
       sessionTypes: [],
       month: new Date(),
@@ -20,26 +25,12 @@ class App extends React.Component {
       daysOfWeek: [],
       timesOfDay: [],
       performers: [],
-      sessionTypeOptions: [
-        "#Dance",
-        "Breakout Adventures",
-        "Beat The Board",
-        "Creation Station",
-        "Creative Movement Ballet Studio",
-        "Dance Party",
-        "Melodies and Art",
-        "Music Studio",
-        "Princess Dance Party",
-        "Puppet Playground",
-        "Smarty Pants",
-      ].map(option => ({
-        key: option,
-        text: option,
-        value: option,
-      })),
+      ageGroupOptions: [],
+      sessionTypeOptions: [],
       performerOptions: [],
       appointmentOptions: [],
       chosenAppointment: "",
+      error: null,
     }
   }
 
@@ -49,12 +40,12 @@ class App extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { timezone, month } = this.state;
+    const { month } = this.state;
 
     const monthMoment = moment(month);
     const previousMonthMoment = moment(prevState.month);
 
-    if (timezone !== prevState.timezone || !monthMoment.isSame(previousMonthMoment)) {
+    if (!monthMoment.isSame(previousMonthMoment)) {
       this.getAppointmentOptions();
     }
   }
@@ -70,19 +61,40 @@ class App extends React.Component {
   }
 
   getAppointmentOptions = () => {
-    const { timezone, month } = this.state;
+    const { month } = this.state;
+
+    this.setState({ loading: true });
 
     const monthMoment = moment(month);
-    axios.get(`https://www.virtualbabysittersclub.com/api/v2/classes?month=${monthMoment.format("YYYY-MM")}&timezone=${timezone}`)
+    axios.get(`https://www.virtualbabysittersclub.com/api/v2/classes?month=${monthMoment.format("YYYY-MM")}`)
       .then(response => this.setState({
+        loading: false,
         appointmentOptions: _.groupBy(response.data.sort((a, b) => moment(a.time).diff(moment(b.time))), function(appointment) {
             return moment(appointment.time).format("dddd, MMMM D, YYYY");
         }),
+        sessionTypeOptions: _.uniq(response.data.filter(option => option.category).map(option => getSessionTypeFromCategory(option.category))).sort()
+          .map(option => ({
+            key: option,
+            text: option,
+            value: option,
+          })),
+          ageGroupOptions: _.uniq(response.data.filter(option => option.category).map(option => getAgeGroupFromCategory(option.category))).sort()
+          .map(option => ({
+            key: option,
+            text: option,
+            value: option,
+          })),
+      }))
+      .catch(error => this.setState({
+        loading: false,
+        error,
       }));
   }
 
   render() {
     const {
+      loading,
+      ageGroupOptions,
       ageGroup,
       sessionTypeOptions,
       sessionTypes,
@@ -109,6 +121,9 @@ class App extends React.Component {
 
     return (
       <>
+        <Dimmer active={loading} inverted>
+          <Loader />
+        </Dimmer>
         <Form>
           <Form.Group widths="equal">
             <Form.Field>
@@ -119,18 +134,7 @@ class App extends React.Component {
                 clearable
                 selectOnBlur={false}
                 selectOnNavigation={false}
-                options={[
-                  {
-                    key: "3-6",
-                    text: "Ages 3-6",
-                    value: "3-6",
-                  },
-                  {
-                    key: "7-12",
-                    text: "Ages 7-12",
-                    value: "7-12",
-                  },
-                ]}
+                options={ageGroupOptions}
                 onChange={(event, data) => this.setState({ ageGroup: data.value })}
                 value={ageGroup}
               />
@@ -164,6 +168,7 @@ class App extends React.Component {
                 type='number'
                 value={spots}
                 onChange={(event) => this.setState({ spots: event.target.valueAsNumber })}
+                min={1}
               />
             </Form.Field>
           </Form.Group>
@@ -250,7 +255,7 @@ class App extends React.Component {
                       <Image size="small" floated="right" src={appointment.image} />
                       <Card.Header>{appointment.name}</Card.Header>
                       <Card.Meta>
-                        <span>{moment(appointment.time).format("h:mm A,  dddd, MMMM D, YYYY")}</span><br/>
+                        <span>{moment(appointment.time).tz(timezone).format("h:mm A,  dddd, MMMM D, YYYY")}</span><br/>
                         <span>{durationHours > 0 ? `${durationHours} Hour${durationHours > 1 ? "s" : ""} ` : ""}{durationMinutes > 0 ? `${durationMinutes} Minute${durationMinutes > 1 ? "s" : ""} ` : ""}</span>
                       </Card.Meta>
                       <Card.Description>
