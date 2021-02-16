@@ -275,7 +275,7 @@ class App extends React.Component {
                 const durationMinutes = duration.minutes();
 
                 return (
-                  <Card.Group key={appointment.id}>
+                  <Card.Group key={appointment.id} style={{ margin: "0 1px" }}>
                     <Card fluid>
                       <Card.Content>
                         <Image size="small" floated="right" src={appointment.image} />
