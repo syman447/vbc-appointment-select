@@ -312,7 +312,7 @@ class App extends React.Component {
                         >
                           Sign Up
                         </Button>
-                        <span style={{ marginLeft: "0.5em" }}>{appointment.slotsAvailable} Spots Left</span>
+                        <span style={{ marginLeft: "0.5em" }}>{appointment.slotsAvailable} Spot{appointment.slotsAvailable > 1 ? "s" : ""} Left</span>
                       </Card.Content>
                     </Card>
                   </Card.Group>
