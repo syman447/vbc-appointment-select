@@ -73,23 +73,28 @@ class App extends React.Component {
 
     const monthMoment = moment(month);
     axios.get(`https://www.virtualbabysittersclub.com/api/v2/classes?month=${monthMoment.format("YYYY-MM")}`)
-      .then(response => this.setState({
-        loading: false,
-        appointmentOptions: _.groupBy(response.data.sort((a, b) => moment(a.time).diff(moment(b.time))), function(appointment) {
-            return moment(appointment.time).format("dddd, MMMM D, YYYY");
-        }),
-        sessionTypeOptions: _.uniq(response.data.filter(option => option.category).map(option => getSessionTypeFromCategory(option.category))).sort()
-          .map(option => ({
+      .then(response => this.setState(prevState => {
+        const sessionTypeOptions = _.uniq(response.data.filter(option => option.category).map(option => getSessionTypeFromCategory(option.category))).sort();
+        const ageGroupOptions = _.uniq(response.data.filter(option => option.category).map(option => getAgeGroupFromCategory(option.category))).sort();
+
+        return {
+          loading: false,
+          appointmentOptions: _.groupBy(response.data.sort((a, b) => moment(a.time).diff(moment(b.time))), function(appointment) {
+              return moment(appointment.time).format("dddd, MMMM D, YYYY");
+          }),
+          sessionTypeOptions: sessionTypeOptions.map(option => ({
             key: option,
             text: option,
             value: option,
           })),
-          ageGroupOptions: _.uniq(response.data.filter(option => option.category).map(option => getAgeGroupFromCategory(option.category))).sort()
-          .map(option => ({
+          ageGroupOptions: ageGroupOptions.map(option => ({
             key: option,
             text: option,
             value: option,
           })),
+          ageGroups: prevState.ageGroups.filter(ageGroup => ageGroupOptions.includes(ageGroup)),
+          sessionTypes: prevState.sessionTypes.filter(sessionType => sessionTypeOptions.includes(sessionType)),
+        }
       }))
       .catch(error => this.setState({
         loading: false,
