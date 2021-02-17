@@ -52,6 +52,10 @@ app.get(["/","/index.html.var"], function (req, res) {
     res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
+app.get("/asset-manifest.json", function (req, res) {
+  res.sendFile(path.join(__dirname, "build", "asset-manifest.json"));
+});
+
 app.get("/ping", function (req, res) {
     return res.send("pong");
 });
