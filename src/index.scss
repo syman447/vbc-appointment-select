@@ -1,0 +1,11 @@
+#erw-root {
+  @import "semantic-ui-css/semantic.min.css";
+  @import "react-datepicker/dist/react-datepicker.css";
+}
+
+.customDatePickerWidth,
+.customDatePickerWidth > div.react-datepicker-wrapper,
+.customDatePickerWidth > div > div.react-datepicker__input-container,
+.customDatePickerWidth > div > div.react-datepicker__input-container input {
+  width: 100%;
+}
