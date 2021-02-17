@@ -174,6 +174,7 @@ class App extends React.Component {
                 value={spots}
                 onChange={(event) => this.setState({ spots: event.target.valueAsNumber })}
                 min={1}
+                inputmode={isTouch ? "numeric" : undefined}
               />
             </Form.Field>
           </Form.Group>
