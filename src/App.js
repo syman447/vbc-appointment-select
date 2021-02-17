@@ -53,7 +53,7 @@ class App extends React.Component {
   }
 
   getPerformerOptions = () => {
-    axios.get("https://www.virtualbabysittersclub.com/appointment-select/api/v2/calendars").then(response => this.setState({
+    axios.get("https://www.virtualbabysittersclub.com/api/v2/calendars").then(response => this.setState({
       performerOptions: response.data.map(option => ({
         key: option.id,
         text: option.name,
@@ -68,7 +68,7 @@ class App extends React.Component {
     this.setState({ loading: true });
 
     const monthMoment = moment(month);
-    axios.get(`https://www.virtualbabysittersclub.com/appointment-select/api/v2/classes?month=${monthMoment.format("YYYY-MM")}`)
+    axios.get(`https://www.virtualbabysittersclub.com/api/v2/classes?month=${monthMoment.format("YYYY-MM")}`)
       .then(response => this.setState({
         loading: false,
         appointmentOptions: _.groupBy(response.data.sort((a, b) => moment(a.time).diff(moment(b.time))), function(appointment) {
@@ -112,13 +112,12 @@ class App extends React.Component {
     } = this.state;
 
     if (chosenAppointment) {
-      console.log(chosenAppointment);
-
       return (
         <Iframe
           url={chosenAppointment}
           width="100%"
-          height="800px"
+          height="1000px"
+          frameBorder="0"
         />
       );
     }
