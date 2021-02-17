@@ -1,6 +1,18 @@
 #erw-root {
-  @import "semantic-ui-css/semantic.min.css";
+  @import "semantic-ui-css/_semantic.min.scss";
   @import "react-datepicker/dist/react-datepicker.css";
+}
+
+*,
+:after,
+:before {
+  box-sizing: inherit;
+  -webkit-box-sizing: inherit;
+}
+
+html {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .customDatePickerWidth,

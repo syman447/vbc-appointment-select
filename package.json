@@ -23,8 +23,9 @@
     "web-vitals": "^1.1.0"
   },
   "scripts": {
+    "create-semantic-partial": "cp ./node_modules/semantic-ui-css/semantic.min.css ./node_modules/semantic-ui-css/_semantic.min.scss",
     "start": "npm run build && node server.js",
-    "build": "react-scripts build",
+    "build": "npm run create-semantic-partial && react-scripts build",
     "eject": "react-scripts eject",
     "start-production": "npm install && npm run build && node server.js"
   },
