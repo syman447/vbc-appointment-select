@@ -167,7 +167,7 @@ class App extends React.Component {
                 value={performers}
               />
             </Form.Field>
-            <Form.Field>
+            <Form.Field className="deferToInheritedFontFamily">
               <label>Spots</label>
               <input
                 type='number'
@@ -178,7 +178,7 @@ class App extends React.Component {
             </Form.Field>
           </Form.Group>
           <Form.Group widths="equal">
-            <Form.Field className="customDatePickerWidth">
+            <Form.Field className="deferToInheritedFontFamily customDatePickerWidth">
               <label>Month</label>
               <DatePicker
                 selected={month}
@@ -272,7 +272,7 @@ class App extends React.Component {
 
           return (
             <Fragment key={day}>
-              <Header content={day} />
+              <Header content={day} className="deferToInheritedFontFamily"/>
               {filteredAppointmentsForDay.map(appointment => {
                 const duration = moment.utc().startOf('day').add({ minutes: appointment.duration });
                 const durationHours = duration.hours();
@@ -283,7 +283,7 @@ class App extends React.Component {
                     <Card fluid>
                       <Card.Content>
                         <Image size="small" floated="right" src={appointment.image} />
-                        <Card.Header>{`${appointment.name} (${getAgeGroupFromCategory(appointment.category)})`}</Card.Header>
+                        <Card.Header className="deferToInheritedFontFamily">{`${appointment.name} (${getAgeGroupFromCategory(appointment.category)})`}</Card.Header>
                         <Card.Meta>
                           <span>{moment(appointment.time).tz(timezone).format("h:mm A,  dddd, MMMM D, YYYY")}</span><br/>
                           <span>{durationHours > 0 ? `${durationHours} Hour${durationHours > 1 ? "s" : ""} ` : ""}{durationMinutes > 0 ? `${durationMinutes} Minute${durationMinutes > 1 ? "s" : ""} ` : ""}</span>
@@ -294,6 +294,7 @@ class App extends React.Component {
                       </Card.Content>
                       <Card.Content extra>
                         <Button
+                          className="deferToInheritedFontFamily"
                           color="blue"
                           onClick={() => this.setState({ chosenAppointment: `${appointment.schedulingUrl}?datetime=${appointment.time}&appointmentType=${appointment.appointmentTypeID}&quantity=${spots}&timezone=${timezone}` })}
                         >
