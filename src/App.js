@@ -13,6 +13,10 @@ const getAgeGroupFromCategory = (category) => category.match(/\(([^)]+)\)/).pop(
 
 const isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0));
 
+const MonthPickerInput = ({ ...props }) => (
+  <input type="text" {...props} readOnly />
+);
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -183,6 +187,7 @@ class App extends React.Component {
                 showMonthYearPicker
                 popperPlacement="bottom-center"
                 withPortal={isTouch}
+                customInput={<MonthPickerInput />}
               />
             </Form.Field>
             <Form.Field>
