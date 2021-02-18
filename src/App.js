@@ -203,12 +203,14 @@ class App extends React.Component {
             const durationHours = duration.hours();
             const durationMinutes = duration.minutes();
 
+            const ageGroup = getAgeGroupFromCategory(appointment.category);
+
             return (
               <Card.Group key={appointment.id} style={{ margin: "0 1px" }}>
                 <Card fluid>
                   <Card.Content>
                     <Image size="small" floated="right" src={appointment.image} />
-                    <Card.Header className="deferToInheritedFontFamily">{`${appointment.name} (${getAgeGroupFromCategory(appointment.category)})`}</Card.Header>
+                    <Card.Header className="deferToInheritedFontFamily">{`${appointment.name}${ageGroup ? `(${ageGroup})` : ""}`}</Card.Header>
                     <Card.Meta>
                       <span>{moment(appointment.time).tz(timezone).format("h:mm A,  dddd, MMMM D, YYYY")}</span><br/>
                       <span>{durationHours > 0 ? `${durationHours} Hour${durationHours > 1 ? "s" : ""} ` : ""}{durationMinutes > 0 ? `${durationMinutes} Minute${durationMinutes > 1 ? "s" : ""} ` : ""}</span>
