@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import axios from "axios";
-import { Card, Dropdown, Form, Header, Button, Image, Dimmer, Loader } from "semantic-ui-react";
+import { Card, Dropdown, Form, Header, Button, Image, Dimmer, Loader, Segment } from "semantic-ui-react";
 import DatePicker from "react-datepicker";
 import momentTimeZone from 'moment-timezone';
 import moment from "moment";
@@ -102,6 +102,88 @@ class App extends React.Component {
       }));
   }
 
+  renderAppointments = () => {
+    const {
+      ageGroups,
+      sessionTypes,
+      performers,
+      spots,
+      daysOfWeek,
+      timesOfDay,
+      timezone,
+      appointmentOptions,
+    } = this.state;
+
+    return Object.keys(appointmentOptions).map(day => {
+      const filteredAppointmentsForDay = appointmentOptions[day].filter(appointment => {
+        const appointmentTime = moment(appointment.time).tz(timezone);
+
+        return (
+          (!ageGroups.length || ageGroups.includes(getAgeGroupFromCategory(appointment.category)))
+          && (!sessionTypes.length || sessionTypes.includes(getSessionTypeFromCategory(appointment.category)))
+          && (!performers.length || performers.includes(appointment.calendarID))
+          && spots <= appointment.slotsAvailable
+          && (!daysOfWeek.length || daysOfWeek.includes(appointmentTime.format("dddd")))
+          && (
+            !timesOfDay.length
+            || (timesOfDay.includes("Morning") && appointmentTime.hour() < 12)
+            || (timesOfDay.includes("Afternoon") && appointmentTime.hour() >= 12 && appointmentTime.hour() < 18)
+            || (timesOfDay.includes("Evening") && appointmentTime.hour() > 18)
+          )
+        )
+      });
+
+      if (!filteredAppointmentsForDay.length) {
+        return null;
+      }
+
+      return (
+        <Fragment key={day}>
+          <Header content={day} className="deferToInheritedFontFamily"/>
+          {filteredAppointmentsForDay.map(appointment => {
+            const duration = moment.utc().startOf('day').add({ minutes: appointment.duration });
+            const durationHours = duration.hours();
+            const durationMinutes = duration.minutes();
+
+            return (
+              <Card.Group key={appointment.id} style={{ margin: "0 1px" }}>
+                <Card fluid>
+                  <Card.Content>
+                    <Image size="small" floated="right" src={appointment.image} />
+                    <Card.Header className="deferToInheritedFontFamily">{`${appointment.name} (${getAgeGroupFromCategory(appointment.category)})`}</Card.Header>
+                    <Card.Meta>
+                      <span>{moment(appointment.time).tz(timezone).format("h:mm A,  dddd, MMMM D, YYYY")}</span><br/>
+                      <span>{durationHours > 0 ? `${durationHours} Hour${durationHours > 1 ? "s" : ""} ` : ""}{durationMinutes > 0 ? `${durationMinutes} Minute${durationMinutes > 1 ? "s" : ""} ` : ""}</span>
+                    </Card.Meta>
+                    <Card.Description>
+                      {appointment.description}
+                    </Card.Description>
+                  </Card.Content>
+                  <Card.Content extra>
+                    <Button
+                      className="deferToInheritedFontFamily"
+                      color="blue"
+                      onClick={() => {
+                        this.setState({ chosenAppointment: `${appointment.schedulingUrl}?datetime=${appointment.time}&appointmentType=${appointment.appointmentTypeID}&quantity=${spots}&timezone=${timezone}` });
+                        Array.prototype.slice.call(document.getElementsByTagName("div")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
+                        Array.prototype.slice.call(document.getElementsByTagName("body")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
+                        Array.prototype.slice.call(document.getElementsByTagName("html")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
+                        window.scroll({ top: 0, behavior: 'smooth' });
+                      }}
+                    >
+                      Sign Up
+                    </Button>
+                    <span style={{ marginLeft: "0.5em" }}>{appointment.slotsAvailable} Spot{appointment.slotsAvailable > 1 ? "s" : ""} Left</span>
+                  </Card.Content>
+                </Card>
+              </Card.Group>
+            );
+          })}
+        </Fragment>
+      )
+    });
+  }
+
   render() {
     const {
       loading,
@@ -116,7 +198,6 @@ class App extends React.Component {
       daysOfWeek,
       timesOfDay,
       timezone,
-      appointmentOptions,
       chosenAppointment,
     } = this.state;
 
@@ -130,6 +211,8 @@ class App extends React.Component {
         />
       );
     }
+
+    const appointments = this.renderAppointments();
 
     return (
       <>
@@ -172,6 +255,8 @@ class App extends React.Component {
                 value={performers}
               />
             </Form.Field>
+          </Form.Group>
+          <Form.Group widths="equal">
             <Form.Field className="deferToInheritedFontFamily">
               <label>Spots</label>
               <input
@@ -180,20 +265,6 @@ class App extends React.Component {
                 onChange={(event) => this.setState({ spots: event.target.valueAsNumber })}
                 min={1}
                 inputmode={isTouch ? "numeric" : undefined}
-              />
-            </Form.Field>
-          </Form.Group>
-          <Form.Group widths="equal">
-            <Form.Field className="deferToInheritedFontFamily customDatePickerWidth">
-              <label>Month</label>
-              <DatePicker
-                selected={month}
-                onChange={date => this.setState({ month: date })}
-                dateFormat="MMMM yyyy"
-                showMonthYearPicker
-                popperPlacement="bottom-center"
-                withPortal={isTouch}
-                customInput={<MonthPickerInput />}
               />
             </Form.Field>
             <Form.Field>
@@ -238,6 +309,20 @@ class App extends React.Component {
                 value={timesOfDay}
               />
             </Form.Field>
+          </Form.Group>
+          <Form.Group widths="equal">
+            <Form.Field className="deferToInheritedFontFamily customDatePickerWidth">
+              <label>Month</label>
+              <DatePicker
+                selected={month}
+                onChange={date => this.setState({ month: date })}
+                dateFormat="MMMM yyyy"
+                showMonthYearPicker
+                popperPlacement="bottom-center"
+                withPortal={isTouch}
+                customInput={<MonthPickerInput />}
+              />
+            </Form.Field>
             <Form.Field>
               <label>Time Zone</label>
               <Dropdown
@@ -253,74 +338,10 @@ class App extends React.Component {
             </Form.Field>
           </Form.Group>
         </Form>
-        {Object.keys(appointmentOptions).map(day => {
-          const filteredAppointmentsForDay = appointmentOptions[day].filter(appointment => {
-            const appointmentTime = moment(appointment.time).tz(timezone);
-
-            return (
-              (!ageGroups.length || ageGroups.includes(getAgeGroupFromCategory(appointment.category)))
-              && (!sessionTypes.length || sessionTypes.includes(getSessionTypeFromCategory(appointment.category)))
-              && (!performers.length || performers.includes(appointment.calendarID))
-              && spots <= appointment.slotsAvailable
-              && (!daysOfWeek.length || daysOfWeek.includes(appointmentTime.format("dddd")))
-              && (
-                !timesOfDay.length
-                || (timesOfDay.includes("Morning") && appointmentTime.hour() < 12)
-                || (timesOfDay.includes("Afternoon") && appointmentTime.hour() >= 12 && appointmentTime.hour() < 18)
-                || (timesOfDay.includes("Evening") && appointmentTime.hour() > 18)
-              )
-            )
-          });
-
-          if (!filteredAppointmentsForDay.length) {
-            return null;
-          }
-
-          return (
-            <Fragment key={day}>
-              <Header content={day} className="deferToInheritedFontFamily"/>
-              {filteredAppointmentsForDay.map(appointment => {
-                const duration = moment.utc().startOf('day').add({ minutes: appointment.duration });
-                const durationHours = duration.hours();
-                const durationMinutes = duration.minutes();
-
-                return (
-                  <Card.Group key={appointment.id} style={{ margin: "0 1px" }}>
-                    <Card fluid>
-                      <Card.Content>
-                        <Image size="small" floated="right" src={appointment.image} />
-                        <Card.Header className="deferToInheritedFontFamily">{`${appointment.name} (${getAgeGroupFromCategory(appointment.category)})`}</Card.Header>
-                        <Card.Meta>
-                          <span>{moment(appointment.time).tz(timezone).format("h:mm A,  dddd, MMMM D, YYYY")}</span><br/>
-                          <span>{durationHours > 0 ? `${durationHours} Hour${durationHours > 1 ? "s" : ""} ` : ""}{durationMinutes > 0 ? `${durationMinutes} Minute${durationMinutes > 1 ? "s" : ""} ` : ""}</span>
-                        </Card.Meta>
-                        <Card.Description>
-                          {appointment.description}
-                        </Card.Description>
-                      </Card.Content>
-                      <Card.Content extra>
-                        <Button
-                          className="deferToInheritedFontFamily"
-                          color="blue"
-                          onClick={() => {
-                            this.setState({ chosenAppointment: `${appointment.schedulingUrl}?datetime=${appointment.time}&appointmentType=${appointment.appointmentTypeID}&quantity=${spots}&timezone=${timezone}` });
-                            Array.prototype.slice.call(document.getElementsByTagName("div")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
-                            Array.prototype.slice.call(document.getElementsByTagName("body")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
-                            Array.prototype.slice.call(document.getElementsByTagName("html")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
-                            window.scroll({ top: 0, behavior: 'smooth' });
-                          }}
-                        >
-                          Sign Up
-                        </Button>
-                        <span style={{ marginLeft: "0.5em" }}>{appointment.slotsAvailable} Spot{appointment.slotsAvailable > 1 ? "s" : ""} Left</span>
-                      </Card.Content>
-                    </Card>
-                  </Card.Group>
-                );
-              })}
-            </Fragment>
-          )
-        })}
+        {!loading && appointments}
+        {!loading && (!appointments.length || appointments.every(appointmentDay => !appointmentDay)) && (
+          <Segment basic textAlign="center" content="No available appointments match your selections." />
+        )}
       </>
     );
   }
