@@ -316,6 +316,7 @@ class App extends React.Component {
                 placeholder="All Performers"
                 selection
                 multiple
+                search
                 options={performerOptions}
                 onChange={(event, data) => this.setState({ performers: data.value })}
                 value={performers}
