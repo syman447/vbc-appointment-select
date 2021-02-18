@@ -79,6 +79,7 @@ class App extends React.Component {
       performerOptions: [],
       appointmentOptions: [],
       chosenAppointment: "",
+      chosenAppointmentLoading: false,
       error: null,
     }
 
@@ -210,7 +211,10 @@ class App extends React.Component {
                       className="deferToInheritedFontFamily"
                       color="blue"
                       onClick={() => {
-                        this.setState({ chosenAppointment: `${appointment.schedulingUrl}?datetime=${appointment.time}&appointmentType=${appointment.appointmentTypeID}&quantity=${spots}&timezone=${timezone}` });
+                        this.setState({
+                          chosenAppointment: `${appointment.schedulingUrl}?datetime=${appointment.time}&appointmentType=${appointment.appointmentTypeID}&quantity=${spots}&timezone=${timezone}`,
+                          chosenAppointmentLoading: true,
+                        });
                         Array.prototype.slice.call(document.getElementsByTagName("div")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
                         Array.prototype.slice.call(document.getElementsByTagName("body")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
                         Array.prototype.slice.call(document.getElementsByTagName("html")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
@@ -245,11 +249,15 @@ class App extends React.Component {
       timesOfDay,
       timezone,
       chosenAppointment,
+      chosenAppointmentLoading,
     } = this.state;
 
     if (chosenAppointment) {
       return (
         <Container>
+          <Dimmer active={chosenAppointmentLoading} inverted>
+            <Loader />
+          </Dimmer>
           <Button
             icon='arrow left'
             labelPosition='left'
@@ -264,6 +272,7 @@ class App extends React.Component {
             width="100%"
             height="1000px"
             frameBorder="0"
+            onLoad={() => this.setState({ chosenAppointmentLoading: false })}
           />
         </Container>
       );
