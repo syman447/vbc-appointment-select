@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 import axios from "axios";
-import { Card, Dropdown, Form, Header, Button, Image, Dimmer, Loader, Segment } from "semantic-ui-react";
+import { Card, Dropdown, Form, Header, Button, Image, Dimmer, Loader, Segment, Container } from "semantic-ui-react";
 import DatePicker from "react-datepicker";
 import momentTimeZone from 'moment-timezone';
 import moment from "moment";
@@ -51,7 +51,7 @@ class App extends React.Component {
     const monthMoment = moment(month);
     const previousMonthMoment = moment(prevState.month);
 
-    if (!monthMoment.isSame(previousMonthMoment)) {
+    if (monthMoment.month() !== previousMonthMoment.month() || monthMoment.year() !== previousMonthMoment.year()) {
       this.getAppointmentOptions();
     }
   }
@@ -203,12 +203,23 @@ class App extends React.Component {
 
     if (chosenAppointment) {
       return (
-        <Iframe
-          url={chosenAppointment}
-          width="100%"
-          height="1000px"
-          frameBorder="0"
-        />
+        <Container>
+          <Button
+            icon='arrow left'
+            labelPosition='left'
+            fluid
+            style={{ maxWidth: "900px", margin: "0 auto -22px" }}
+            className="deferToInheritedFontFamily"
+            content="Return to Availability"
+            onClick={() => this.setState({ chosenAppointment: null })}
+          />
+          <Iframe
+            url={chosenAppointment}
+            width="100%"
+            height="1000px"
+            frameBorder="0"
+          />
+        </Container>
       );
     }
 
@@ -262,7 +273,7 @@ class App extends React.Component {
               <input
                 type='number'
                 value={spots}
-                onChange={(event) => this.setState({ spots: event.target.valueAsNumber })}
+                onChange={(event) => this.setState({ spots: (event.target.valueAsNumber || 1) })}
                 min={1}
                 inputmode={isTouch ? "numeric" : undefined}
               />
@@ -337,6 +348,32 @@ class App extends React.Component {
               />
             </Form.Field>
           </Form.Group>
+          <Segment basic textAlign="center">
+            <Button
+              icon='delete'
+              labelPosition='left'
+              className="deferToInheritedFontFamily"
+              content="Reset Filters"
+              disabled={
+                !ageGroups.length
+                && !sessionTypes.length
+                && month.getMonth() === new Date().getMonth() && month.getFullYear() === new Date().getFullYear()
+                && spots === 1
+                && !daysOfWeek.length
+                && !timesOfDay.length
+                && !performers.length
+              }
+              onClick={() => this.setState({
+                ageGroups: [],
+                sessionTypes: [],
+                month: new Date(),
+                spots: 1,
+                daysOfWeek: [],
+                timesOfDay: [],
+                performers: [],
+              })}
+            />
+          </Segment>
         </Form>
         {!loading && appointments}
         {!loading && (!appointments.length || appointments.every(appointmentDay => !appointmentDay)) && (
