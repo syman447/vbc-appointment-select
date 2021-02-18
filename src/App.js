@@ -329,7 +329,8 @@ class App extends React.Component {
               <input
                 type='number'
                 value={spots}
-                onChange={(event) => this.setState({ spots: (event.target.valueAsNumber || 1) })}
+                onChange={(event) => this.setState({ spots: event.target.valueAsNumber })}
+                onBlur={() => this.setState({ spots: spots || 1 })}
                 min={1}
                 inputmode={isTouch ? "numeric" : undefined}
               />
