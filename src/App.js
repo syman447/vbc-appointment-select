@@ -6,6 +6,8 @@ import momentTimeZone from 'moment-timezone';
 import moment from "moment";
 import _ from "lodash";
 import Iframe from 'react-iframe'
+import { withRouter } from 'react-router-dom';
+import qs from "query-string";
 
 const getSessionTypeFromCategory = (category) => category.split("(")[0].trim();
 
@@ -17,20 +19,61 @@ const MonthPickerInput = ({ ...props }) => (
   <input type="text" {...props} readOnly />
 );
 
+const DAYS_OF_WEEK = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+const TIMES_OF_DAY = [
+  "Morning",
+  "Afternoon",
+  "Evening",
+];
+
 class App extends React.Component {
   constructor(props) {
     super(props);
 
+    const {
+      ageGroup,
+      sessionType,
+      month,
+      spots,
+      timezone,
+      dayOfWeek,
+      timeOfDay,
+      performer,
+    } = qs.parse(props.location.search || "");
+
     this.state = {
       loading: false,
-      ageGroups: [],
-      sessionTypes: [],
-      month: new Date(),
-      spots: 1,
-      timezone: momentTimeZone.tz.guess(),
-      daysOfWeek: [],
-      timesOfDay: [],
-      performers: [],
+      ageGroups: ageGroup ? (
+        Array.isArray(ageGroup) ? _.uniq(ageGroup.filter(x => x)) : [ageGroup]
+      ) : [],
+      sessionTypes: sessionType ? (
+        Array.isArray(sessionType) ? _.uniq(sessionType.filter(x => x)) : [sessionType]
+      ) : [],
+      month: (month && moment(month).isValid()) ? moment(month).toDate() : new Date(),
+      spots: parseInt(spots) && parseInt(spots) > 0 ? parseInt(spots) : 1,
+      timezone: timezone && momentTimeZone.tz.names().includes(timezone) ? timezone : momentTimeZone.tz.guess(),
+      daysOfWeek: dayOfWeek ? (
+        Array.isArray(dayOfWeek) ? _.uniq(dayOfWeek.filter(x => DAYS_OF_WEEK.includes(x))) : (
+          DAYS_OF_WEEK.includes(dayOfWeek) ? [dayOfWeek] : []
+        )
+      ) : [],
+      timesOfDay: timeOfDay ? (
+        Array.isArray(timeOfDay) ? _.uniq(timeOfDay.filter(x => TIMES_OF_DAY.includes(x))) : (
+          TIMES_OF_DAY.includes(timeOfDay) ? [timeOfDay] : []
+        )
+      ) : [],
+      performers: performer ? (
+        Array.isArray(performer) ? _.uniq(performer.filter(x => x).map(x => x.toString())) : [performer.toString()]
+      ) : [],
       ageGroupOptions: [],
       sessionTypeOptions: [],
       performerOptions: [],
@@ -38,6 +81,8 @@ class App extends React.Component {
       chosenAppointment: "",
       error: null,
     }
+
+    props.history.push({ search: '' });
   }
 
   componentDidMount() {
@@ -57,13 +102,14 @@ class App extends React.Component {
   }
 
   getPerformerOptions = () => {
-    axios.get("https://www.virtualbabysittersclub.com/api/v2/calendars").then(response => this.setState({
+    axios.get("https://www.virtualbabysittersclub.com/api/v2/calendars").then(response => this.setState(prevState => ({
       performerOptions: response.data.map(option => ({
-        key: option.id,
+        key: option.id.toString(),
         text: option.name,
-        value: option.id,
+        value: option.id.toString(),
       })),
-    }));
+      performers: prevState.performers.filter(performer => response.data.map(option => option.id.toString()).includes(performer)),
+    })));
   }
 
   getAppointmentOptions = () => {
@@ -121,7 +167,7 @@ class App extends React.Component {
         return (
           (!ageGroups.length || ageGroups.includes(getAgeGroupFromCategory(appointment.category)))
           && (!sessionTypes.length || sessionTypes.includes(getSessionTypeFromCategory(appointment.category)))
-          && (!performers.length || performers.includes(appointment.calendarID))
+          && (!performers.length || performers.includes(appointment.calendarID.toString()))
           && spots <= appointment.slotsAvailable
           && (!daysOfWeek.length || daysOfWeek.includes(appointmentTime.format("dddd")))
           && (
@@ -284,15 +330,7 @@ class App extends React.Component {
                 placeholder="All Days"
                 selection
                 multiple
-                options={[
-                  "Monday",
-                  "Tuesday",
-                  "Wednesday",
-                  "Thursday",
-                  "Friday",
-                  "Saturday",
-                  "Sunday",
-                ].map(option => ({
+                options={DAYS_OF_WEEK.map(option => ({
                   key: option,
                   text: option,
                   value: option,
@@ -307,11 +345,7 @@ class App extends React.Component {
                 placeholder="All Times"
                 selection
                 multiple
-                options={[
-                  "Morning",
-                  "Afternoon",
-                  "Evening",
-                ].map(option => ({
+                options={TIMES_OF_DAY.map(option => ({
                   key: option,
                   text: option,
                   value: option,
@@ -384,4 +418,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withRouter(App);
