@@ -338,7 +338,7 @@ class App extends React.Component {
           </Form.Group>
           <Form.Group widths="equal">
             <Form.Field className="deferToInheritedFontFamily">
-              <label>Spots</label>
+              <label># of Kids Participating</label>
               <input
                 type='number'
                 value={spots}
