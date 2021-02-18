@@ -24,6 +24,3 @@ yarn-debug.log*
 yarn-error.log*
 
 apps.json
-check_and_restart_vbc_api_app.sh
-vbc_scheduling_form.css
-vbc_scheduling_form.html
