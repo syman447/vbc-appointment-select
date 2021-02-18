@@ -11,7 +11,10 @@ import qs from "query-string";
 
 const getSessionTypeFromCategory = (category) => category.split("(")[0].trim();
 
-const getAgeGroupFromCategory = (category) => category.match(/\(([^)]+)\)/).pop();
+const getAgeGroupFromCategory = (category) => {
+  const matches = category.match(/\(([^)]+)\)/);
+  return matches ? matches.pop() : "";
+};
 
 const isTouch = (('ontouchstart' in window) || (navigator.msMaxTouchPoints > 0));
 
@@ -121,8 +124,16 @@ class App extends React.Component {
     const monthMoment = moment(month);
     axios.get(`https://www.virtualbabysittersclub.com/api/v2/classes?month=${monthMoment.format("YYYY-MM")}`)
       .then(response => this.setState(prevState => {
-        const sessionTypeOptions = _.uniq(response.data.filter(option => option.category).map(option => getSessionTypeFromCategory(option.category))).sort();
-        const ageGroupOptions = _.uniq(response.data.filter(option => option.category).map(option => getAgeGroupFromCategory(option.category))).sort();
+        const sessionTypeOptions = _.uniq(
+          response.data.filter(option => option.category)
+            .map(option => getSessionTypeFromCategory(option.category))
+            .filter(option => option)
+        ).sort();
+        const ageGroupOptions = _.uniq(
+          response.data.filter(option => option.category)
+            .map(option => getAgeGroupFromCategory(option.category))
+            .filter(option => option)
+        ).sort();
 
         return {
           loading: false,
