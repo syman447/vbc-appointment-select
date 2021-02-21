@@ -2,7 +2,6 @@ var express = require("express");
 var axios = require("axios").default;
 var router = express.Router();
 
-var constants = require("../../constants");
 var asyncFilter = require("../../util").asyncFilter;
 
 /* GET calendars listing. */
@@ -15,7 +14,6 @@ router.get("/", async (req, res, next) => {
     type.category
     && type.active
     && type.calendarIDs.length > 0
-    && constants.categories.includes(type.category)
   ));
 
   const validCalendars = validAppointmentTypes.reduce((acc, curr) => acc.concat(curr.calendarIDs), []);
