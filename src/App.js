@@ -225,7 +225,7 @@ class App extends React.Component {
                       color="blue"
                       onClick={() => {
                         this.setState({
-                          chosenAppointment: `${appointment.schedulingUrl}?datetime=${appointment.time}&appointmentType=${appointment.appointmentTypeID}&quantity=${spots}&timezone=${timezone}`,
+                          chosenAppointment: `${appointment.schedulingUrl}?datetime=${moment(appointment.time).tz(appointment.calendarTimezone).format("YYYY-MM-DDTHH:mm:ss")}&appointmentType=${appointment.appointmentTypeID}&quantity=${spots}&timezone=${timezone}`,
                           chosenAppointmentLoading: true,
                         });
                         Array.prototype.slice.call(document.getElementsByTagName("div")).forEach(element => element.scroll({ top: 0, behavior: 'smooth' }));
